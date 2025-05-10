@@ -1,0 +1,10 @@
+# Ignore VS Code settings
+.vscode/
+
+# Ignore build artifacts
+*.o
+*.obj
+
+# Ignore executable files (Linux-style: no extension)
+monitor
+build/
