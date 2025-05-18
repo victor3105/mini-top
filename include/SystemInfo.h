@@ -1,3 +1,6 @@
+#ifndef SYSTEMINFO_H
+#define SYSTEMINFO_H
+
 #include <stdint.h>
 
 /** Describes RAM usage */
@@ -14,3 +17,5 @@ class SystemInfo {
     double getCpuUsage() const;
     MemoryUsage getMemoryUsage() const;
 };
+
+#endif /* SYSTEMINFO_H */
