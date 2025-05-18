@@ -5,11 +5,11 @@
 
 #include "SystemInfo.h"
 
-/** CPU activity information */
+// CPU activity information
 struct CpuTimes {
-    /** Describes total amount of time spent by CPU */
+    // Describes total amount of time spent by CPU
     long total;
-    /** Amount of time when CPU was idle */
+    // Amount of time when CPU was idle
     long idle;
 };
 

@@ -3,7 +3,7 @@
 
 #include <stdint.h>
 
-/** Describes RAM usage */
+// Describes RAM usage
 struct MemoryUsage {
     long totalKB;
     long availableKB;
@@ -11,7 +11,7 @@ struct MemoryUsage {
     double usedPercent;
 };
 
-/** Collect system metrics (CPU/RAM usage) */
+// Collect system metrics (CPU/RAM usage)
 class SystemInfo {
   public:
     double getCpuUsage() const;
