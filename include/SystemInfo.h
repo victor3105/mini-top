@@ -2,6 +2,7 @@
 #define SYSTEMINFO_H
 
 #include <stdint.h>
+#include <vector>
 
 // Describes RAM usage
 struct MemoryUsage {
@@ -11,10 +12,15 @@ struct MemoryUsage {
     double usedPercent;
 };
 
+struct CpuUsage {
+  double totalUsage;
+  std::vector<double> perCoreUsage;
+};
+
 // Collect system metrics (CPU/RAM usage)
 class SystemInfo {
   public:
-    double getCpuUsage() const;
+    CpuUsage getCpuUsage() const;
     MemoryUsage getMemoryUsage() const;
 };
 
