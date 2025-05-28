@@ -2,14 +2,15 @@
 #define SYSTEMINFO_H
 
 #include <stdint.h>
+
 #include <vector>
 
 // Describes RAM usage
 struct MemoryUsage {
-    long totalKB;
-    long availableKB;
-    long usedKB;
-    double usedPercent;
+  long totalKB;
+  long availableKB;
+  long usedKB;
+  double usedPercent;
 };
 
 struct CpuUsage {
@@ -19,9 +20,9 @@ struct CpuUsage {
 
 // Collect system metrics (CPU/RAM usage)
 class SystemInfo {
-  public:
-    CpuUsage getCpuUsage() const;
-    MemoryUsage getMemoryUsage() const;
+ public:
+  CpuUsage getCpuUsage() const;
+  MemoryUsage getMemoryUsage() const;
 };
 
 #endif /* SYSTEMINFO_H */

@@ -2,18 +2,18 @@
 
 #include "SystemInfo.h"
 
-int main()
-{
+int main() {
   SystemInfo info = SystemInfo();
   CpuUsage cpuUsage;
   MemoryUsage memUsage;
 
-  while(1) {
+  while (1) {
     std::cout << "CPU load:\n";
     cpuUsage = info.getCpuUsage();
     std::cout << "Total usage = " << cpuUsage.totalUsage << "%\n";
     for (int i = 0; i < cpuUsage.perCoreUsage.size(); i++) {
-      std::cout << "Core " << i << " usage = " << cpuUsage.perCoreUsage[i] << "%\n";
+      std::cout << "Core " << i << " usage = " << cpuUsage.perCoreUsage[i]
+                << "%\n";
     }
     memUsage = info.getMemoryUsage();
 
