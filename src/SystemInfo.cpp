@@ -99,3 +99,32 @@ CpuUsage SystemInfo::getCpuUsage() const {
 
     return stats;
 }
+
+MemoryUsage SystemInfo::getMemoryUsage() const {
+    std::ifstream statFile("/proc/meminfo");
+    std::string mem_str;
+    std::vector<long> values;
+    long val;
+    std::string label;
+    std::string units;
+    MemoryUsage result;
+
+    for (int i = 0; i < 3; i++) {
+        getline(statFile, mem_str);
+
+        std::istringstream iss(mem_str);
+
+        iss >> label >> val >> units;
+
+        values.push_back(val);
+    }
+
+    result.totalKB = values[0];
+    // We use simplified logic here, we might need something like
+    // MemUsed = MemTotal - MemFree - Buffers - Cached - SReclaimable + Shmem
+    result.usedKB = result.totalKB - values[1];
+    result.availableKB = values[2];
+    result.usedPercent = (double)result.usedKB / (double)result.availableKB * 100;
+
+    return result;
+}
