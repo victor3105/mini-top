@@ -9,6 +9,9 @@
 #include <sstream>
 #include <string>
 #include <thread>
+#include <unordered_map>
+
+#include "SystemInfo.h"
 
 std::ostream& operator<<(std::ostream& os, const ProcessState& state) {
   switch (state) {
@@ -99,8 +102,27 @@ ProcessInfo getProcessInfo(const std::string& pid) {
   return result;
 }
 
+static unsigned long procCpuTime(const std::string& pid) {
+  std::ifstream file("/proc/" + pid + "/stat");
+  unsigned long utime, stime;
+  std::string token;
+
+  // skip first 13 fields
+  for (int i = 0; i < 13; ++i) file >> token;
+  file >> utime >> stime;
+
+  return utime + stime;
+}
+
 std::vector<ProcessInfo> ProcessTable::getProcesses() const {
   std::vector<ProcessInfo> res;
+  SystemInfo sysInfo = SystemInfo();
+  std::string cpu_str;
+  std::ifstream statFile("/proc/stat");
+  getline(statFile, cpu_str);
+  CpuTimes total_snapshot1 = sysInfo.getCpuTimes(cpu_str);
+  std::unordered_map<std::string, unsigned long> proc_times1;
+  int num_cpus = std::thread::hardware_concurrency();
 
   for (const auto& entry : fs::directory_iterator("/proc")) {
     std::string filename = entry.path().filename().string();
@@ -109,7 +131,24 @@ std::vector<ProcessInfo> ProcessTable::getProcesses() const {
     if (entry.is_directory() && isNumber(filename)) {
       info = getProcessInfo(filename);
       res.push_back(info);
+      proc_times1[filename] = procCpuTime(filename);
     }
+  }
+
+  std::this_thread::sleep_for(std::chrono::milliseconds(100));
+
+  statFile.clear();
+  statFile.seekg(0);
+  getline(statFile, cpu_str);
+  CpuTimes total_snapshot2 = sysInfo.getCpuTimes(cpu_str);
+
+  for (auto& x : res) {
+    unsigned long procTime2 = procCpuTime(x.pid);
+
+    double delta_proc = procTime2 - proc_times1[x.pid];
+    double delta_total = total_snapshot2.total - total_snapshot1.total;
+
+    x.cpuUsed = (delta_proc / delta_total) * num_cpus * 100.0;
   }
 
   return res;
