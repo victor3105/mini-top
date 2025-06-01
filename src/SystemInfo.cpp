@@ -7,15 +7,7 @@
 #include <iostream>
 #include <thread>
 
-// CPU activity information
-struct CpuTimes {
-  // Describes total amount of time spent by CPU
-  long total;
-  // Amount of time when CPU was idle
-  long idle;
-};
-
-static CpuTimes getCpuTimes(std::string& str) {
+CpuTimes SystemInfo::getCpuTimes(std::string& str) const {
   unsigned long user, nice, system, idle, iowait, irq, softirq;
   long totalTime, idleTime;
   std::string label;
@@ -34,8 +26,9 @@ static int getLogicalCoreCount() {
   return (count > 0) ? static_cast<int>(count) : 1;
 }
 
-static void collectPerCoreSnapshots(std::ifstream& statFile, unsigned numCores,
-                                    std::vector<CpuTimes>& snapshots) {
+void SystemInfo::collectPerCoreSnapshots(
+    std::ifstream& statFile, unsigned numCores,
+    std::vector<CpuTimes>& snapshots) const {
   std::string cpu_str;
   CpuTimes snapshot_tmp;
 
