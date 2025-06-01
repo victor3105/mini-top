@@ -10,6 +10,8 @@ int main() {
   MemoryUsage memUsage;
   std::vector<ProcessInfo> processes;
   ProcessTable procTable;
+  // Default total number of processed to display
+  constexpr unsigned procNumDefault = 10;
 
   while (1) {
     auto memFuture =
@@ -41,7 +43,9 @@ int main() {
     std::cout << "RAM usage: " << memUsage.usedPercent << "%\n";
 
     std::cout << "Active processes: " << processes.size() << "\n\n";
-    for (int i = 0; i < processes.size(); i++) {
+    unsigned processesToShow =
+        processes.size() < procNumDefault ? processes.size() : procNumDefault;
+    for (int i = 0; i < processesToShow; i++) {
       std::cout << processes[i] << "\n";
     }
 
