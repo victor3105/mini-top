@@ -151,5 +151,9 @@ std::vector<ProcessInfo> ProcessTable::getProcesses() const {
     x.cpuUsed = (delta_proc / delta_total) * num_cpus * 100.0;
   }
 
+  std::sort(res.begin(), res.end(), [](ProcessInfo& a, ProcessInfo& b) {
+    return a.cpuUsed > b.cpuUsed;
+  });
+
   return res;
 }
