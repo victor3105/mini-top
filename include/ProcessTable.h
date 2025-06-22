@@ -39,6 +39,7 @@ std::ostream& operator<<(std::ostream& os, const ProcessInfo& info);
 class ProcessTable {
  public:
   std::vector<ProcessInfo> getProcesses() const;
+  void printTableHeader() const;
 };
 
 #endif /* PROCESS_TABLE_H */

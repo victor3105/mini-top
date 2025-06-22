@@ -43,6 +43,7 @@ int main() {
     std::cout << "RAM usage: " << memUsage.usedPercent << "%\n";
 
     std::cout << "Active processes: " << processes.size() << "\n\n";
+    procTable.printTableHeader();
     unsigned processesToShow =
         processes.size() < procNumDefault ? processes.size() : procNumDefault;
     for (int i = 0; i < processesToShow; i++) {

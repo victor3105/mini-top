@@ -42,6 +42,12 @@ std::ostream& operator<<(std::ostream& os, const ProcessInfo& info) {
   return os;
 }
 
+void ProcessTable::printTableHeader() const {
+    std::cout << std::left << std::setw(8) << "PID" << std::setw(40) << "Name"
+     << std::setw(10) << "State" << std::setw(6) << "% CPU" << std::setw(10)
+     << "RAM KB" << "\n";
+}
+
 namespace fs = std::filesystem;
 
 static bool isNumber(const std::string& s) {
