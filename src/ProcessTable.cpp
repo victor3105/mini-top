@@ -37,8 +37,8 @@ std::ostream& operator<<(std::ostream& os, const ProcessState& state) {
 std::ostream& operator<<(std::ostream& os, const ProcessInfo& info) {
   os << std::left << std::setw(8) << info.pid << std::setw(40) << info.name
      << std::setw(10) << info.state << std::setw(6) << std::fixed
-     << std::setprecision(2) << info.cpuUsed << "%\t" << std::setw(10)
-     << info.memUsedKB << " KB";
+     << std::setprecision(2) << info.cpuUsed << std::setw(10)
+     << info.memUsedKB;
   return os;
 }
 
