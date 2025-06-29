@@ -1,9 +1,10 @@
 CXX = g++
-CXXFLAGS = -Wall -std=c++20 -Iinclude
 
 SRC_DIR = src
-INC_DIR = include
+INC_DIRS = include external
 BUILD_DIR = build
+
+CXXFLAGS = -Wall -std=c++20 $(addprefix -I,$(INC_DIRS))
 
 SOURCES = $(wildcard $(SRC_DIR)/*.cpp)
 OBJECTS = $(patsubst $(SRC_DIR)/%.cpp,$(BUILD_DIR)/%.o,$(SOURCES))

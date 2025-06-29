@@ -40,6 +40,10 @@ class ProcessTable {
  public:
   std::vector<ProcessInfo> getProcesses() const;
   void printTableHeader() const;
+  ProcessTable(unsigned sleepMs = 100) : snapshotsSleepMs(sleepMs) {}
+
+ private:
+  unsigned snapshotsSleepMs;
 };
 
 #endif /* PROCESS_TABLE_H */

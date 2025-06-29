@@ -37,15 +37,14 @@ std::ostream& operator<<(std::ostream& os, const ProcessState& state) {
 std::ostream& operator<<(std::ostream& os, const ProcessInfo& info) {
   os << std::left << std::setw(8) << info.pid << std::setw(40) << info.name
      << std::setw(10) << info.state << std::setw(6) << std::fixed
-     << std::setprecision(2) << info.cpuUsed << std::setw(10)
-     << info.memUsedKB;
+     << std::setprecision(2) << info.cpuUsed << std::setw(10) << info.memUsedKB;
   return os;
 }
 
 void ProcessTable::printTableHeader() const {
-    std::cout << std::left << std::setw(8) << "PID" << std::setw(40) << "Name"
-     << std::setw(10) << "State" << std::setw(6) << "% CPU" << std::setw(10)
-     << "RAM KB" << "\n";
+  std::cout << std::left << std::setw(8) << "PID" << std::setw(40) << "Name"
+            << std::setw(10) << "State" << std::setw(6) << "% CPU"
+            << std::setw(10) << "RAM KB" << "\n";
 }
 
 namespace fs = std::filesystem;
@@ -122,7 +121,7 @@ static unsigned long procCpuTime(const std::string& pid) {
 
 std::vector<ProcessInfo> ProcessTable::getProcesses() const {
   std::vector<ProcessInfo> res;
-  SystemInfo sysInfo = SystemInfo();
+  SystemInfo sysInfo = SystemInfo(this->snapshotsSleepMs);
   std::string cpu_str;
   std::ifstream statFile("/proc/stat");
   getline(statFile, cpu_str);
@@ -141,7 +140,8 @@ std::vector<ProcessInfo> ProcessTable::getProcesses() const {
     }
   }
 
-  std::this_thread::sleep_for(std::chrono::milliseconds(100));
+  std::this_thread::sleep_for(
+      std::chrono::milliseconds(this->snapshotsSleepMs));
 
   statFile.clear();
   statFile.seekg(0);

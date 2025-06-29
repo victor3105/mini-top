@@ -64,7 +64,8 @@ CpuUsage SystemInfo::getCpuUsage() const {
   collectPerCoreSnapshots(statFile, num_cores, per_core_snapshot1);
 
   // Sleep for a short period to get the second snapshot
-  std::this_thread::sleep_for(std::chrono::milliseconds(500));
+  std::this_thread::sleep_for(
+      std::chrono::milliseconds(this->snapshotsSleepMs));
 
   statFile.clear();
   statFile.seekg(0);

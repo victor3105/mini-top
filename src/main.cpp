@@ -1,17 +1,38 @@
+#include <cxxopts.hpp>
+
 #include <future>
 #include <iostream>
 
 #include "ProcessTable.h"
 #include "SystemInfo.h"
 
-int main() {
-  SystemInfo info = SystemInfo();
+int main(int argc, char *argv[]) {
   CpuUsage cpuUsage;
   MemoryUsage memUsage;
   std::vector<ProcessInfo> processes;
-  ProcessTable procTable;
   // Default total number of processed to display
   constexpr unsigned procNumDefault = 10;
+  // Percentage of overall refresh timeout to use in CPU/RAM threads
+  constexpr unsigned thrSleepPercent = 10;
+
+  cxxopts::Options options("mini-top", "Top-like system monitor");
+
+  options.add_options()
+      ("i,interval", "Refresh interval in milliseconds",
+       cxxopts::value<unsigned>()->default_value("200"))
+      ("h,help", "Print help");
+
+  auto result = options.parse(argc, argv);
+
+  if (result.count("help")) {
+    std::cout << options.help() << std::endl;
+    return 0;
+  }
+
+  unsigned intervalMs = result["interval"].as<unsigned>();
+
+  ProcessTable procTable = ProcessTable(intervalMs / thrSleepPercent);
+  SystemInfo info = SystemInfo(intervalMs / thrSleepPercent);
 
   while (1) {
     auto memFuture =
@@ -50,7 +71,9 @@ int main() {
       std::cout << processes[i] << "\n";
     }
 
-    std::this_thread::sleep_for(std::chrono::milliseconds(1));
+    // Or use std::this_thread::sleep_until instead
+    std::this_thread::sleep_for(
+        std::chrono::milliseconds(intervalMs - (intervalMs / thrSleepPercent)));
   }
 
   return 0;

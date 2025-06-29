@@ -33,8 +33,10 @@ class SystemInfo {
   CpuUsage getCpuUsage() const;
   MemoryUsage getMemoryUsage() const;
   CpuTimes getCpuTimes(std::string& str) const;
+  SystemInfo(unsigned sleepMs = 100) : snapshotsSleepMs(sleepMs) {}
 
  private:
+  unsigned snapshotsSleepMs;
   void collectPerCoreSnapshots(std::ifstream& statFile, unsigned numCores,
                                std::vector<CpuTimes>& snapshots) const;
 };
