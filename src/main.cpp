@@ -1,5 +1,4 @@
 #include <cxxopts.hpp>
-
 #include <future>
 #include <iostream>
 
@@ -10,8 +9,6 @@ int main(int argc, char *argv[]) {
   CpuUsage cpuUsage;
   MemoryUsage memUsage;
   std::vector<ProcessInfo> processes;
-  // Default total number of processed to display
-  constexpr unsigned procNumDefault = 10;
   // Percentage of overall refresh timeout to use in CPU/RAM threads
   constexpr unsigned thrSleepPercent = 10;
 
@@ -20,6 +17,8 @@ int main(int argc, char *argv[]) {
   options.add_options()
       ("i,interval", "Refresh interval in milliseconds",
        cxxopts::value<unsigned>()->default_value("200"))
+      ("n,nproc", "Number of processes to display",
+       cxxopts::value<unsigned>()->default_value("10"))
       ("h,help", "Print help");
 
   auto result = options.parse(argc, argv);
@@ -30,6 +29,7 @@ int main(int argc, char *argv[]) {
   }
 
   unsigned intervalMs = result["interval"].as<unsigned>();
+  unsigned procNum = result["nproc"].as<unsigned>();
 
   ProcessTable procTable = ProcessTable(intervalMs / thrSleepPercent);
   SystemInfo info = SystemInfo(intervalMs / thrSleepPercent);
@@ -66,7 +66,7 @@ int main(int argc, char *argv[]) {
     std::cout << "Active processes: " << processes.size() << "\n\n";
     procTable.printTableHeader();
     unsigned processesToShow =
-        processes.size() < procNumDefault ? processes.size() : procNumDefault;
+        processes.size() < procNum ? processes.size() : procNum;
     for (int i = 0; i < processesToShow; i++) {
       std::cout << processes[i] << "\n";
     }
