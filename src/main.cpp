@@ -32,17 +32,17 @@ int main(int argc, char *argv[]) {
   unsigned procNum = result["nproc"].as<unsigned>();
 
   ProcessTable procTable = ProcessTable(intervalMs / thrSleepPercent);
-  SystemInfo info = SystemInfo(intervalMs / thrSleepPercent);
+  SystemInfo sysInfo = SystemInfo(intervalMs / thrSleepPercent);
 
   while (1) {
     auto memFuture =
-        std::async(std::launch::async, [&]() { return info.getMemoryUsage(); });
+        std::async(std::launch::async, [info = sysInfo]() { return info.getMemoryUsage(); });
 
     auto cpuFuture =
-        std::async(std::launch::async, [&]() { return info.getCpuUsage(); });
+        std::async(std::launch::async, [info = sysInfo]() { return info.getCpuUsage(); });
 
     auto procFuture = std::async(std::launch::async,
-                                 [&]() { return procTable.getProcesses(); });
+                                 [table = procTable]() { return table.getProcesses(); });
 
     cpuUsage = cpuFuture.get();
     memUsage = memFuture.get();
