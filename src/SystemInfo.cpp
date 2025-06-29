@@ -6,6 +6,7 @@
 #include <fstream>
 #include <iostream>
 #include <thread>
+#include <unordered_map>
 
 CpuTimes SystemInfo::getCpuTimes(std::string& str) const {
   unsigned long user, nice, system, idle, iowait, irq, softirq;
@@ -98,30 +99,37 @@ CpuUsage SystemInfo::getCpuUsage() const {
   return stats;
 }
 
-MemoryUsage SystemInfo::getMemoryUsage() const {
-  std::ifstream statFile("/proc/meminfo");
+static long
+getMemVal(std::ifstream& statFile)
+{
   std::string memStr;
-  std::vector<long> values;
   long val;
   std::string label;
   std::string units;
+
+  getline(statFile, memStr);
+
+  std::istringstream iss(memStr);
+
+  iss >> label >> val >> units;
+
+  return val;
+}
+
+MemoryUsage SystemInfo::getMemoryUsage() const {
+  std::ifstream statFile("/proc/meminfo");
   MemoryUsage result;
+  std::unordered_map<std::string, long> values;
 
-  for (int i = 0; i < 3; i++) {
-    getline(statFile, memStr);
+  values["totalKB"] = getMemVal(statFile);
+  values["usedKB"] = getMemVal(statFile);
+  values["availableKB"] = getMemVal(statFile);
 
-    std::istringstream iss(memStr);
-
-    iss >> label >> val >> units;
-
-    values.push_back(val);
-  }
-
-  result.totalKB = values[0];
+  result.totalKB = values["totalKB"];
   // We use simplified logic here, we might need something like
   // MemUsed = MemTotal - MemFree - Buffers - Cached - SReclaimable + Shmem
-  result.usedKB = result.totalKB - values[1];
-  result.availableKB = values[2];
+  result.usedKB = result.totalKB - values["usedKB"];
+  result.availableKB = values["availableKB"];
   result.usedPercent = (double)result.usedKB / (double)result.availableKB * 100;
 
   return result;
