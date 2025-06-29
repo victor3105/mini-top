@@ -26,11 +26,17 @@ enum class ProcessState {
 
 std::ostream& operator<<(std::ostream& os, const ProcessState& state);
 
+// Structure describing process
 struct ProcessInfo {
+  // Process PID
   std::string pid;
+  // Process name
   std::string name;
+  // Process state
   ProcessState state;
+  // CPU used by process in percent
   double cpuUsed;
+  // RAM used by process in percent
   unsigned long memUsedKB;
 };
 
@@ -38,11 +44,14 @@ std::ostream& operator<<(std::ostream& os, const ProcessInfo& info);
 
 class ProcessTable {
  public:
+  // Get info about processes
   std::vector<ProcessInfo> getProcesses() const;
+  // Print process table header
   void printTableHeader() const;
   ProcessTable(unsigned sleepMs = 100) : snapshotsSleepMs(sleepMs) {}
 
  private:
+  // Time to sleep between consecutive snapshots in ms
   unsigned snapshotsSleepMs;
 };
 
