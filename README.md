@@ -44,3 +44,4 @@ You’ll see a real-time display of system and process statistics sorted by CPU 
 - Sort processes by memory usage
 - Cross-platform support (macOS via sysctl)
 - Better output formatting using `ncurses`
+- Add a signal handler (e.g., Ctrl+C) to cleanly exit the loop
