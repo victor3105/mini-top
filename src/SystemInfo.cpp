@@ -29,13 +29,13 @@ static int getLogicalCoreCount() {
 void SystemInfo::collectPerCoreSnapshots(
     std::ifstream& statFile, unsigned numCores,
     std::vector<CpuTimes>& snapshots) const {
-  std::string cpu_str;
-  CpuTimes snapshot_tmp;
+  std::string cpuStr;
+  CpuTimes snapshotTmp;
 
   for (int i = 0; i < numCores; i++) {
-    getline(statFile, cpu_str);
-    snapshot_tmp = getCpuTimes(cpu_str);
-    snapshots.push_back(snapshot_tmp);
+    getline(statFile, cpuStr);
+    snapshotTmp = getCpuTimes(cpuStr);
+    snapshots.push_back(snapshotTmp);
   }
 }
 
@@ -49,19 +49,19 @@ double calcUsage(double totalDelta, double idleDelta) {
 
 CpuUsage SystemInfo::getCpuUsage() const {
   // Sample the current CPU times
-  std::string cpu_str;
+  std::string cpuStr;
   CpuTimes snapshot1, snapshot2;
-  std::vector<CpuTimes> per_core_snapshot1;
-  std::vector<CpuTimes> per_core_snapshot2;
-  int num_cores = getLogicalCoreCount();
+  std::vector<CpuTimes> perCoreSnapshot1;
+  std::vector<CpuTimes> perCoreSnapshot2;
+  int numCores = getLogicalCoreCount();
   CpuUsage stats;
 
   // Read first snapshot from /proc/stat
   std::ifstream statFile("/proc/stat");
-  getline(statFile, cpu_str);
-  snapshot1 = getCpuTimes(cpu_str);
+  getline(statFile, cpuStr);
+  snapshot1 = getCpuTimes(cpuStr);
 
-  collectPerCoreSnapshots(statFile, num_cores, per_core_snapshot1);
+  collectPerCoreSnapshots(statFile, numCores, perCoreSnapshot1);
 
   // Sleep for a short period to get the second snapshot
   std::this_thread::sleep_for(
@@ -71,28 +71,28 @@ CpuUsage SystemInfo::getCpuUsage() const {
   statFile.seekg(0);
 
   // Read second snapshot from /proc/stat
-  getline(statFile, cpu_str);
-  snapshot2 = getCpuTimes(cpu_str);
+  getline(statFile, cpuStr);
+  snapshot2 = getCpuTimes(cpuStr);
 
-  collectPerCoreSnapshots(statFile, num_cores, per_core_snapshot2);
+  collectPerCoreSnapshots(statFile, numCores, perCoreSnapshot2);
 
   statFile.close();
 
   // Calculate CPU usage percentage
-  double total_delta = snapshot2.total - snapshot1.total;
-  double idle_delta = snapshot2.idle - snapshot1.idle;
+  double totalDelta = snapshot2.total - snapshot1.total;
+  double idleDelta = snapshot2.idle - snapshot1.idle;
 
-  stats.totalUsage = calcUsage(total_delta, idle_delta);
+  stats.totalUsage = calcUsage(totalDelta, idleDelta);
 
-  for (int i = 0; i < num_cores; i++) {
-    double per_core_total_delta =
-        per_core_snapshot2[i].total - per_core_snapshot1[i].total;
-    double per_core_idle_delta =
-        per_core_snapshot2[i].idle - per_core_snapshot1[i].idle;
-    double per_cor_percent =
-        calcUsage(per_core_total_delta, per_core_idle_delta);
+  for (int i = 0; i < numCores; i++) {
+    double perCoreTotalDelta =
+        perCoreSnapshot2[i].total - perCoreSnapshot1[i].total;
+    double perCoreIdleDelta =
+        perCoreSnapshot2[i].idle - perCoreSnapshot1[i].idle;
+    double perCorePercent =
+        calcUsage(perCoreTotalDelta, perCoreIdleDelta);
 
-    stats.perCoreUsage.push_back(per_cor_percent);
+    stats.perCoreUsage.push_back(perCorePercent);
   }
 
   return stats;
@@ -100,7 +100,7 @@ CpuUsage SystemInfo::getCpuUsage() const {
 
 MemoryUsage SystemInfo::getMemoryUsage() const {
   std::ifstream statFile("/proc/meminfo");
-  std::string mem_str;
+  std::string memStr;
   std::vector<long> values;
   long val;
   std::string label;
@@ -108,9 +108,9 @@ MemoryUsage SystemInfo::getMemoryUsage() const {
   MemoryUsage result;
 
   for (int i = 0; i < 3; i++) {
-    getline(statFile, mem_str);
+    getline(statFile, memStr);
 
-    std::istringstream iss(mem_str);
+    std::istringstream iss(memStr);
 
     iss >> label >> val >> units;
 
