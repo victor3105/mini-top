@@ -1,5 +1,7 @@
 #pragma once
 
+#include <stdint.h>
+
 #include <iomanip>
 #include <string>
 #include <vector>
@@ -36,7 +38,7 @@ struct ProcessInfo {
   // CPU used by process in percent
   double cpuUsed;
   // RAM used by process in percent
-  unsigned long memUsedKB;
+  uint64_t memUsedKB;
 };
 
 std::ostream& operator<<(std::ostream& os, const ProcessInfo& info);
@@ -51,5 +53,5 @@ class ProcessTable {
 
  private:
   // Time to sleep between consecutive snapshots in ms
-  unsigned snapshotsSleepMs;
+  uint32_t snapshotsSleepMs;
 };

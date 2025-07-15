@@ -89,7 +89,7 @@ ProcessInfo getProcessInfo(const std::string& pid) {
 
   std::string line;
   std::string state;
-  unsigned long memory = 0;
+  uint64_t memory = 0;
 
   while (std::getline(statusFile, line)) {
     std::istringstream iss(line);
@@ -107,9 +107,9 @@ ProcessInfo getProcessInfo(const std::string& pid) {
   return result;
 }
 
-static unsigned long procCpuTime(const std::string& pid) {
+static uint64_t procCpuTime(const std::string& pid) {
   std::ifstream file("/proc/" + pid + "/stat");
-  unsigned long utime, stime;
+  uint64_t utime, stime;
   std::string token;
 
   // skip first 13 fields
@@ -126,7 +126,7 @@ std::vector<ProcessInfo> ProcessTable::getProcesses() const {
   std::ifstream statFile("/proc/stat");
   getline(statFile, cpuStr);
   CpuTimes totalSnapshot1 = sysInfo.getCpuTimes(cpuStr);
-  std::unordered_map<std::string, unsigned long> procTimes1;
+  std::unordered_map<std::string, uint64_t> procTimes1;
   int numCpus = std::thread::hardware_concurrency();
 
   for (const auto& entry : fs::directory_iterator("/proc")) {
@@ -149,7 +149,7 @@ std::vector<ProcessInfo> ProcessTable::getProcesses() const {
   CpuTimes totalSnapshot2 = sysInfo.getCpuTimes(cpuStr);
 
   for (auto& x : res) {
-    unsigned long procTime2 = procCpuTime(x.pid);
+    uint64_t procTime2 = procCpuTime(x.pid);
 
     double deltaProc = procTime2 - procTimes1[x.pid];
     double deltaTotal = totalSnapshot2.total - totalSnapshot1.total;
