@@ -5,6 +5,7 @@
 #include <fstream>
 #include <vector>
 
+namespace sysinfo {
 // Describes RAM usage
 struct MemoryUsage {
   uint64_t totalKB;
@@ -45,3 +46,4 @@ class SystemInfo {
   void collectPerCoreSnapshots(std::ifstream& statFile, unsigned numCores,
                                std::vector<CpuTimes>& snapshots) const;
 };
+}  // namespace sysinfo

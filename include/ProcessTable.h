@@ -6,6 +6,7 @@
 #include <string>
 #include <vector>
 
+namespace proctable {
 // R	Running	Actively running on a CPU or ready to run.
 // S	Sleeping (interruptible)	Waiting for an event (e.g., input), but
 // can be woken by signals. D	Sleeping (uninterruptible)	Waiting on I/O;
@@ -55,3 +56,4 @@ class ProcessTable {
   // Time to sleep between consecutive snapshots in ms
   uint32_t snapshotsSleepMs;
 };
+}  // namespace proctable

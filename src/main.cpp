@@ -6,9 +6,9 @@
 #include "SystemInfo.h"
 
 int main(int argc, char *argv[]) {
-  CpuUsage cpuUsage;
-  MemoryUsage memUsage;
-  std::vector<ProcessInfo> processes;
+  sysinfo::CpuUsage cpuUsage;
+  sysinfo::MemoryUsage memUsage;
+  std::vector<proctable::ProcessInfo> processes;
   // Percentage of overall refresh timeout to use in CPU/RAM threads
   constexpr unsigned thrSleepPercent = 10;
 
@@ -31,8 +31,10 @@ int main(int argc, char *argv[]) {
   unsigned intervalMs = result["interval"].as<unsigned>();
   unsigned procNum = result["nproc"].as<unsigned>();
 
-  ProcessTable procTable = ProcessTable(intervalMs / thrSleepPercent);
-  SystemInfo sysInfo = SystemInfo(intervalMs / thrSleepPercent);
+  proctable::ProcessTable procTable =
+      proctable::ProcessTable(intervalMs / thrSleepPercent);
+  sysinfo::SystemInfo sysInfo =
+      sysinfo::SystemInfo(intervalMs / thrSleepPercent);
 
   while (1) {
     auto memFuture =

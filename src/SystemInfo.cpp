@@ -8,6 +8,7 @@
 #include <thread>
 #include <unordered_map>
 
+namespace sysinfo {
 CpuTimes SystemInfo::getCpuTimes(std::string& str) const {
   uint64_t user, nice, system, idle, iowait, irq, softirq;
   uint64_t totalTime, idleTime;
@@ -90,8 +91,7 @@ CpuUsage SystemInfo::getCpuUsage() const {
         perCoreSnapshot2[i].total - perCoreSnapshot1[i].total;
     double perCoreIdleDelta =
         perCoreSnapshot2[i].idle - perCoreSnapshot1[i].idle;
-    double perCorePercent =
-        calcUsage(perCoreTotalDelta, perCoreIdleDelta);
+    double perCorePercent = calcUsage(perCoreTotalDelta, perCoreIdleDelta);
 
     stats.perCoreUsage.push_back(perCorePercent);
   }
@@ -99,9 +99,7 @@ CpuUsage SystemInfo::getCpuUsage() const {
   return stats;
 }
 
-static uint64_t
-getMemVal(std::ifstream& statFile)
-{
+static uint64_t getMemVal(std::ifstream& statFile) {
   std::string memStr;
   uint64_t val;
   std::string label;
@@ -134,3 +132,4 @@ MemoryUsage SystemInfo::getMemoryUsage() const {
 
   return result;
 }
+}  // namespace sysinfo

@@ -13,6 +13,7 @@
 
 #include "SystemInfo.h"
 
+namespace proctable {
 std::ostream& operator<<(std::ostream& os, const ProcessState& state) {
   switch (state) {
     case ProcessState::Running:
@@ -121,11 +122,11 @@ static uint64_t procCpuTime(const std::string& pid) {
 
 std::vector<ProcessInfo> ProcessTable::getProcesses() const {
   std::vector<ProcessInfo> res;
-  SystemInfo sysInfo = SystemInfo(this->snapshotsSleepMs);
+  sysinfo::SystemInfo sysInfo = sysinfo::SystemInfo(this->snapshotsSleepMs);
   std::string cpuStr;
   std::ifstream statFile("/proc/stat");
   getline(statFile, cpuStr);
-  CpuTimes totalSnapshot1 = sysInfo.getCpuTimes(cpuStr);
+  sysinfo::CpuTimes totalSnapshot1 = sysInfo.getCpuTimes(cpuStr);
   std::unordered_map<std::string, uint64_t> procTimes1;
   int numCpus = std::thread::hardware_concurrency();
 
@@ -146,7 +147,7 @@ std::vector<ProcessInfo> ProcessTable::getProcesses() const {
   statFile.clear();
   statFile.seekg(0);
   getline(statFile, cpuStr);
-  CpuTimes totalSnapshot2 = sysInfo.getCpuTimes(cpuStr);
+  sysinfo::CpuTimes totalSnapshot2 = sysInfo.getCpuTimes(cpuStr);
 
   for (auto& x : res) {
     uint64_t procTime2 = procCpuTime(x.pid);
@@ -163,3 +164,4 @@ std::vector<ProcessInfo> ProcessTable::getProcesses() const {
 
   return res;
 }
+}  // namespace proctable
