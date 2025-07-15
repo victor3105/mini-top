@@ -1,5 +1,4 @@
-#ifndef SYSTEMINFO_H
-#define SYSTEMINFO_H
+#pragma once
 
 #include <stdint.h>
 
@@ -46,5 +45,3 @@ class SystemInfo {
   void collectPerCoreSnapshots(std::ifstream& statFile, unsigned numCores,
                                std::vector<CpuTimes>& snapshots) const;
 };
-
-#endif /* SYSTEMINFO_H */

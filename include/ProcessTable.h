@@ -1,5 +1,4 @@
-#ifndef PROCESS_TABLE_H
-#define PROCESS_TABLE_H
+#pragma once
 
 #include <iomanip>
 #include <string>
@@ -54,5 +53,3 @@ class ProcessTable {
   // Time to sleep between consecutive snapshots in ms
   unsigned snapshotsSleepMs;
 };
-
-#endif /* PROCESS_TABLE_H */
