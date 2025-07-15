@@ -34,9 +34,11 @@ make
 ## Run
 
 ```
-./build/monitor
+./build/monitor [--interval <time_ms> --nproc <number>]
 ```
-You’ll see a real-time display of system and process statistics sorted by CPU usage.
+You’ll see a real-time display of system and process statistics sorted by CPU usage.  
+`--interval <time_ms>` is the refresh time in milliseconds  
+`--nproc <number>` is the number of processes to display. If a specified number is bigger than the actual number of processes in the system, all processes will be shown.
 
 ---
 
