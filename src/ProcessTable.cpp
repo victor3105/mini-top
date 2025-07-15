@@ -50,8 +50,10 @@ void ProcessTable::printTableHeader() const {
 
 namespace fs = std::filesystem;
 
-static bool isNumber(const std::string& s) {
+namespace {
+bool isNumber(const std::string& s) {
   return !s.empty() && std::all_of(s.begin(), s.end(), ::isdigit);
+}
 }
 
 static ProcessState stateToProcessState(char state) {
