@@ -13,6 +13,7 @@
 // Shouldn't normally appear — indicates a dead/unreachable task (rare). I
 // Idle (kernel threads only)	Idle kernel thread (since Linux 5.14+).
 enum class ProcessState {
+  Unknown,    // For any unexpected state
   Running,    // 'R'
   Sleeping,   // 'S'
   DiskSleep,  // 'D'
@@ -20,7 +21,6 @@ enum class ProcessState {
   Zombie,     // 'Z'
   Dead,       // 'X'
   Idle,       // 'I'
-  Unknown,    // For any unexpected state
 };
 
 std::ostream& operator<<(std::ostream& os, const ProcessState& state);
