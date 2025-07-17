@@ -1,10 +1,12 @@
-#ifndef PROCESS_TABLE_H
-#define PROCESS_TABLE_H
+#pragma once
+
+#include <stdint.h>
 
 #include <iomanip>
 #include <string>
 #include <vector>
 
+namespace proctable {
 // R	Running	Actively running on a CPU or ready to run.
 // S	Sleeping (interruptible)	Waiting for an event (e.g., input), but
 // can be woken by signals. D	Sleeping (uninterruptible)	Waiting on I/O;
@@ -14,6 +16,7 @@
 // Shouldn't normally appear — indicates a dead/unreachable task (rare). I
 // Idle (kernel threads only)	Idle kernel thread (since Linux 5.14+).
 enum class ProcessState {
+  Unknown,    // For any unexpected state
   Running,    // 'R'
   Sleeping,   // 'S'
   DiskSleep,  // 'D'
@@ -21,7 +24,6 @@ enum class ProcessState {
   Zombie,     // 'Z'
   Dead,       // 'X'
   Idle,       // 'I'
-  Unknown,    // For any unexpected state
 };
 
 std::ostream& operator<<(std::ostream& os, const ProcessState& state);
@@ -37,7 +39,7 @@ struct ProcessInfo {
   // CPU used by process in percent
   double cpuUsed;
   // RAM used by process in percent
-  unsigned long memUsedKB;
+  uint64_t memUsedKB;
 };
 
 std::ostream& operator<<(std::ostream& os, const ProcessInfo& info);
@@ -52,7 +54,6 @@ class ProcessTable {
 
  private:
   // Time to sleep between consecutive snapshots in ms
-  unsigned snapshotsSleepMs;
+  uint32_t snapshotsSleepMs;
 };
-
-#endif /* PROCESS_TABLE_H */
+}  // namespace proctable

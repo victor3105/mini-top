@@ -8,11 +8,13 @@
 #include <iostream>
 #include <sstream>
 #include <string>
+#include <string_view>
 #include <thread>
 #include <unordered_map>
 
 #include "SystemInfo.h"
 
+namespace proctable {
 std::ostream& operator<<(std::ostream& os, const ProcessState& state) {
   switch (state) {
     case ProcessState::Running:
@@ -49,8 +51,10 @@ void ProcessTable::printTableHeader() const {
 
 namespace fs = std::filesystem;
 
-static bool isNumber(const std::string& s) {
+namespace {
+bool isNumber(const std::string_view s) {
   return !s.empty() && std::all_of(s.begin(), s.end(), ::isdigit);
+}
 }
 
 static ProcessState stateToProcessState(char state) {
@@ -74,9 +78,13 @@ static ProcessState stateToProcessState(char state) {
   }
 }
 
-ProcessInfo getProcessInfo(const std::string& pid) {
-  std::string commPath = "/proc/" + pid + "/comm";
-  std::string statusPath = "/proc/" + pid + "/status";
+ProcessInfo getProcessInfo(const std::string_view pid) {
+  std::string commPath = "/proc/";
+  commPath += pid;
+  commPath += "/comm";
+  std::string statusPath = "/proc/";
+  statusPath += pid;
+  statusPath += "/status";
 
   std::ifstream commFile(commPath);
   std::ifstream statusFile(statusPath);
@@ -89,7 +97,7 @@ ProcessInfo getProcessInfo(const std::string& pid) {
 
   std::string line;
   std::string state;
-  unsigned long memory = 0;
+  uint64_t memory = 0;
 
   while (std::getline(statusFile, line)) {
     std::istringstream iss(line);
@@ -107,9 +115,12 @@ ProcessInfo getProcessInfo(const std::string& pid) {
   return result;
 }
 
-static unsigned long procCpuTime(const std::string& pid) {
-  std::ifstream file("/proc/" + pid + "/stat");
-  unsigned long utime, stime;
+static uint64_t procCpuTime(const std::string_view pid) {
+  std::string path = "/proc/";
+  path += pid;
+  path += "/stat";
+  std::ifstream file(path);
+  uint64_t utime, stime;
   std::string token;
 
   // skip first 13 fields
@@ -119,15 +130,28 @@ static unsigned long procCpuTime(const std::string& pid) {
   return utime + stime;
 }
 
+namespace {
+void calcCpuUsage(ProcessInfo& procInfo,
+                  std::unordered_map<std::string, uint64_t>& procTimes1,
+                  const sysinfo::CpuTimes& totalSnapshot1,
+                  const sysinfo::CpuTimes& totalSnapshot2, const int numCpus) {
+  uint64_t procTime2 = procCpuTime(procInfo.pid);
+
+  double deltaProc = procTime2 - procTimes1[procInfo.pid];
+  double deltaTotal = totalSnapshot2.total - totalSnapshot1.total;
+
+  procInfo.cpuUsed = (deltaProc / deltaTotal) * numCpus * 100.0;
+}
+}
+
 std::vector<ProcessInfo> ProcessTable::getProcesses() const {
   std::vector<ProcessInfo> res;
-  SystemInfo sysInfo = SystemInfo(this->snapshotsSleepMs);
+  sysinfo::SystemInfo sysInfo = sysinfo::SystemInfo(this->snapshotsSleepMs);
   std::string cpuStr;
   std::ifstream statFile("/proc/stat");
   getline(statFile, cpuStr);
-  CpuTimes totalSnapshot1 = sysInfo.getCpuTimes(cpuStr);
-  std::unordered_map<std::string, unsigned long> procTimes1;
-  int numCpus = std::thread::hardware_concurrency();
+  sysinfo::CpuTimes totalSnapshot1 = sysInfo.getCpuTimes(cpuStr);
+  std::unordered_map<std::string, uint64_t> procTimes1;
 
   for (const auto& entry : fs::directory_iterator("/proc")) {
     std::string filename = entry.path().filename().string();
@@ -135,7 +159,7 @@ std::vector<ProcessInfo> ProcessTable::getProcesses() const {
 
     if (entry.is_directory() && isNumber(filename)) {
       info = getProcessInfo(filename);
-      res.push_back(info);
+      res.push_back(std::move(info));
       procTimes1[filename] = procCpuTime(filename);
     }
   }
@@ -146,16 +170,12 @@ std::vector<ProcessInfo> ProcessTable::getProcesses() const {
   statFile.clear();
   statFile.seekg(0);
   getline(statFile, cpuStr);
-  CpuTimes totalSnapshot2 = sysInfo.getCpuTimes(cpuStr);
+  sysinfo::CpuTimes totalSnapshot2 = sysInfo.getCpuTimes(cpuStr);
 
-  for (auto& x : res) {
-    unsigned long procTime2 = procCpuTime(x.pid);
-
-    double deltaProc = procTime2 - procTimes1[x.pid];
-    double deltaTotal = totalSnapshot2.total - totalSnapshot1.total;
-
-    x.cpuUsed = (deltaProc / deltaTotal) * numCpus * 100.0;
-  }
+  int numCpus = std::thread::hardware_concurrency();
+  std::for_each(res.begin(), res.end(), [&](ProcessInfo& x) {
+    calcCpuUsage(x, procTimes1, totalSnapshot1, totalSnapshot2, numCpus);
+  });
 
   std::sort(res.begin(), res.end(), [](ProcessInfo& a, ProcessInfo& b) {
     return a.cpuUsed > b.cpuUsed;
@@ -163,3 +183,4 @@ std::vector<ProcessInfo> ProcessTable::getProcesses() const {
 
   return res;
 }
+}  // namespace proctable
