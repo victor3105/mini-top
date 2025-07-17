@@ -159,7 +159,7 @@ std::vector<ProcessInfo> ProcessTable::getProcesses() const {
 
     if (entry.is_directory() && isNumber(filename)) {
       info = getProcessInfo(filename);
-      res.push_back(info);
+      res.push_back(std::move(info));
       procTimes1[filename] = procCpuTime(filename);
     }
   }
