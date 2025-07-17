@@ -8,6 +8,7 @@
 #include <iostream>
 #include <sstream>
 #include <string>
+#include <string_view>
 #include <thread>
 #include <unordered_map>
 
@@ -51,7 +52,7 @@ void ProcessTable::printTableHeader() const {
 namespace fs = std::filesystem;
 
 namespace {
-bool isNumber(const std::string& s) {
+bool isNumber(const std::string_view s) {
   return !s.empty() && std::all_of(s.begin(), s.end(), ::isdigit);
 }
 }
@@ -77,9 +78,13 @@ static ProcessState stateToProcessState(char state) {
   }
 }
 
-ProcessInfo getProcessInfo(const std::string& pid) {
-  std::string commPath = "/proc/" + pid + "/comm";
-  std::string statusPath = "/proc/" + pid + "/status";
+ProcessInfo getProcessInfo(const std::string_view pid) {
+  std::string commPath = "/proc/";
+  commPath += pid;
+  commPath += "/comm";
+  std::string statusPath = "/proc/";
+  statusPath += pid;
+  statusPath += "/status";
 
   std::ifstream commFile(commPath);
   std::ifstream statusFile(statusPath);
@@ -110,8 +115,11 @@ ProcessInfo getProcessInfo(const std::string& pid) {
   return result;
 }
 
-static uint64_t procCpuTime(const std::string& pid) {
-  std::ifstream file("/proc/" + pid + "/stat");
+static uint64_t procCpuTime(const std::string_view pid) {
+  std::string path = "/proc/";
+  path += pid;
+  path += "/stat";
+  std::ifstream file(path);
   uint64_t utime, stime;
   std::string token;
 
